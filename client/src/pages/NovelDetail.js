@@ -21,11 +21,26 @@ const NovelDetail = () => {
     const fetchNovelAndChapters = async () => {
       try {
         setLoading(true);
-        const novelData = await novelApi.getNovel(id);
-        setNovel(novelData);
         
-        const chaptersData = await chapterApi.getChapters(id);
-        setChapters(chaptersData);
+        // Special case for "new" route
+        if (id === 'new') {
+          setNovel({
+            title: 'New Novel',
+            author: '',
+            sourceLanguage: 'ko',
+            targetLanguage: 'en',
+            description: '',
+            coverImage: '',
+            chapters: []
+          });
+          setChapters([]);
+        } else {
+          const novelData = await novelApi.getNovel(id);
+          setNovel(novelData);
+          
+          const chaptersData = await chapterApi.getChapters(id);
+          setChapters(chaptersData);
+        }
         
         setError(null);
       } catch (err) {
@@ -114,12 +129,16 @@ const NovelDetail = () => {
           <p className="novel-author">by {novel.author}</p>
         </div>
         <div className="page-actions">
-          <button onClick={() => navigate(`/novels/${id}/edit`)} className="btn btn-secondary">
-            Edit Novel
-          </button>
-          <button onClick={handleDeleteNovel} className="btn btn-secondary">
-            Delete Novel
-          </button>
+          {id !== 'new' && (
+            <>
+              <button onClick={() => navigate(`/novels/${id}/edit`)} className="btn btn-secondary">
+                Edit Novel
+              </button>
+              <button onClick={handleDeleteNovel} className="btn btn-secondary">
+                Delete Novel
+              </button>
+            </>
+          )}
         </div>
       </div>
 

@@ -5,6 +5,11 @@ const { Novel, Chapter } = require('../models');
 // @access  Public
 const getChapters = async (req, res) => {
   try {
+    // Special case for "new" route
+    if (req.params.novelId === 'new') {
+      return res.json([]);
+    }
+    
     const chapters = await Chapter.find({ novel: req.params.novelId })
       .sort({ number: 1 });
     

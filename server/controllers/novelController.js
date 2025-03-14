@@ -18,6 +18,12 @@ const getNovels = async (req, res) => {
 // @access  Public
 const getNovelById = async (req, res) => {
   try {
+    // Handle invalid IDs
+    if (!req.params.id || req.params.id === 'undefined') {
+      res.status(400);
+      throw new Error('Invalid novel ID');
+    }
+    
     const novel = await Novel.findById(req.params.id).populate('chapters');
     
     if (novel) {
