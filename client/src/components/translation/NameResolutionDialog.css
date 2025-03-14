@@ -1,0 +1,94 @@
+.name-resolution-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 1000;
+}
+
+.name-resolution-dialog {
+  background-color: white;
+  border-radius: 0.5rem;
+  width: 100%;
+  max-width: 800px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.dialog-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: var(--text-color);
+}
+
+.dialog-description {
+  margin-bottom: 1.5rem;
+  color: var(--secondary-color);
+}
+
+.names-container {
+  overflow-y: auto;
+  margin-bottom: 1.5rem;
+  flex: 1;
+}
+
+.name-item {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.375rem;
+}
+
+.name-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .name-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.name-field {
+  margin-bottom: 0.5rem;
+}
+
+.name-field label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--secondary-color);
+}
+
+.name-display {
+  padding: 0.5rem;
+  background-color: var(--light-gray);
+  border-radius: 0.375rem;
+  min-height: 2.5rem;
+}
+
+.name-display.context {
+  font-size: 0.875rem;
+  max-height: 100px;
+  overflow-y: auto;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1rem;
+}

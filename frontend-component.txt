@@ -1,0 +1,129 @@
+// NameResolutionDialog.jsx
+import React, { useState } from 'react';
+
+const NameResolutionDialog = ({ names, onResolved, onCancel }) => {
+  // Track user choices for each name
+  const [nameChoices, setNameChoices] = useState(
+    names.reduce((acc, name) => {
+      acc[name.id] = {
+        originalName: name.originalText,
+        translatedName: name.suggestedTranslation || '',
+        nameType: name.type || 'character'
+      };
+      return acc;
+    }, {})
+  );
+
+  // Update a specific name choice
+  const handleNameChange = (nameId, field, value) => {
+    setNameChoices(prev => ({
+      ...prev,
+      [nameId]: {
+        ...prev[nameId],
+        [field]: value
+      }
+    }));
+  };
+
+  // Submit all name choices
+  const handleSubmit = () => {
+    const resolvedNames = Object.values(nameChoices);
+    onResolved(resolvedNames);
+  };
+
+  // Types of names for selection
+  const nameTypes = [
+    { value: 'character', label: 'Character' },
+    { value: 'location', label: 'Location' },
+    { value: 'organization', label: 'Organization' },
+    { value: 'item', label: 'Item/Object' },
+    { value: 'concept', label: 'Concept/Idea' },
+    { value: 'other', label: 'Other' }
+  ];
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-lg w-full max-w-2xl p-6 shadow-xl">
+        <h2 className="text-2xl font-bold mb-4">New Names Detected</h2>
+        
+        <p className="mb-6">
+          The following new names were detected in the chapter. Please review the suggested translations
+          or provide your own to ensure consistency throughout the novel.
+        </p>
+        
+        <div className="max-h-96 overflow-y-auto mb-6">
+          {names.map(name => (
+            <div key={name.id} className="mb-6 p-4 border rounded">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Original Name
+                  </label>
+                  <div className="p-2 bg-gray-100 rounded">
+                    {name.originalText}
+                  </div>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Translation
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full p-2 border rounded"
+                    value={nameChoices[name.id].translatedName}
+                    onChange={(e) => handleNameChange(name.id, 'translatedName', e.target.value)}
+                    placeholder="Enter translated name"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Context (where it appears)
+                  </label>
+                  <div className="p-2 bg-gray-100 rounded text-sm">
+                    {name.context || "No context available"}
+                  </div>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Name Type
+                  </label>
+                  <select
+                    className="w-full p-2 border rounded"
+                    value={nameChoices[name.id].nameType}
+                    onChange={(e) => handleNameChange(name.id, 'nameType', e.target.value)}
+                  >
+                    {nameTypes.map(type => (
+                      <option key={type.value} value={type.value}>
+                        {type.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+        
+        <div className="flex justify-end space-x-4">
+          <button
+            onClick={onCancel}
+            className="px-4 py-2 text-gray-700 border rounded hover:bg-gray-100"
+          >
+            Later
+          </button>
+          <button
+            onClick={handleSubmit}
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            Save Name Translations
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default NameResolutionDialog;

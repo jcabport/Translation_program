@@ -1,0 +1,214 @@
+.novel-detail-page {
+  padding: 2rem 0;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+}
+
+.page-title h1 {
+  margin: 0 0 0.5rem;
+}
+
+.page-title .novel-author {
+  margin: 0;
+  color: var(--secondary-color);
+}
+
+.page-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.novel-info-card {
+  display: flex;
+  flex-direction: column;
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+
+@media (min-width: 768px) {
+  .novel-info-card {
+    flex-direction: row;
+  }
+}
+
+.novel-cover {
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  background-color: var(--light-gray);
+}
+
+@media (min-width: 768px) {
+  .novel-cover {
+    width: 200px;
+    height: auto;
+    flex-shrink: 0;
+  }
+}
+
+.novel-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.novel-cover-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--primary-color);
+  color: white;
+  font-size: 4rem;
+  font-weight: bold;
+}
+
+.novel-details {
+  padding: 1.5rem;
+  flex: 1;
+}
+
+.novel-language {
+  margin-bottom: 1rem;
+}
+
+.novel-description {
+  margin-bottom: 1rem;
+}
+
+.novel-description p {
+  margin-top: 0.5rem;
+  color: var(--secondary-color);
+}
+
+.novel-chapters-count {
+  margin-bottom: 0;
+}
+
+.chapters-section {
+  margin-bottom: 2rem;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.section-header h2 {
+  margin: 0;
+}
+
+.add-chapter-form {
+  margin-bottom: 2rem;
+}
+
+.add-chapter-form h3 {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1.5rem;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.chapters-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+.chapter-card {
+  display: flex;
+  flex-direction: column;
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .chapter-card {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+.chapter-info {
+  margin-bottom: 1rem;
+}
+
+@media (min-width: 768px) {
+  .chapter-info {
+    margin-bottom: 0;
+  }
+}
+
+.chapter-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.2rem;
+}
+
+.chapter-status {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.status-pending {
+  background-color: var(--light-gray);
+  color: var(--secondary-color);
+}
+
+.status-translated {
+  background-color: rgba(16, 185, 129, 0.1);
+  color: var(--success-color);
+}
+
+.status-needs_review {
+  background-color: rgba(245, 158, 11, 0.1);
+  color: var(--warning-color);
+}
+
+.status-completed {
+  background-color: rgba(16, 185, 129, 0.1);
+  color: var(--success-color);
+}
+
+.status-warning {
+  background-color: rgba(245, 158, 11, 0.1);
+  color: var(--warning-color);
+}
+
+.chapter-actions {
+  display: flex;
+  gap: 0.5rem;
+}

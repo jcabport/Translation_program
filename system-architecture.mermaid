@@ -1,0 +1,33 @@
+flowchart TD
+    A[User] --> B[Web Frontend]
+    B --> C[Upload Novel]
+    B --> D[Manage Translations]
+    B --> E[Review/Edit Names]
+    
+    C --> F[Backend API]
+    D --> F
+    E --> F
+    
+    F --> G[Claude API Service]
+    F --> H[Name Detection Service]
+    F --> I[Database]
+    
+    G <--> I
+    H <--> I
+    
+    subgraph Name Management
+        H --> J[Name Extraction]
+        J --> K[User Prompt for New Names]
+        K --> L[Dictionary Update]
+    end
+    
+    subgraph Translation Process
+        G --> M[Chunk Processing]
+        M --> N[Dictionary Application]
+        N --> O[Translation]
+        O --> P[Post-processing]
+    end
+    
+    I --> Q[(Novel Storage)]
+    I --> R[(Translation Storage)]
+    I --> S[(Name Dictionary)]
