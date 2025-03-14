@@ -2,14 +2,14 @@ const { Chapter, Novel, DetectedName } = require('../models');
 const TranslationService = require('../services/translationService');
 const NameManager = require('../services/nameManager');
 
-// Initialize services
-if (!process.env.CLAUDE_API_KEY) {
-  console.error('CLAUDE_API_KEY is not set in environment variables');
-  process.exit(1);
+// Initialize services with null API key if not set
+const apiKey = process.env.CLAUDE_API_KEY;
+if (!apiKey) {
+  console.warn('CLAUDE_API_KEY is not set in environment variables. Translation features will be disabled.');
 }
 
-const nameManager = new NameManager(process.env.CLAUDE_API_KEY);
-const translationService = new TranslationService(process.env.CLAUDE_API_KEY, nameManager);
+const nameManager = new NameManager(apiKey);
+const translationService = new TranslationService(apiKey, nameManager);
 
 // @desc    Translate a chapter
 // @route   POST /api/novels/:novelId/chapters/:chapterId/translate
@@ -27,9 +27,8 @@ const translateChapter = async (req, res) => {
 
     // Check if Claude API key is configured
     if (!process.env.CLAUDE_API_KEY) {
-      console.error('CLAUDE_API_KEY is not set in environment variables');
-      return res.status(500).json({
-        message: 'Translation service is not properly configured. Please check your API settings.'
+      return res.status(503).json({
+        message: 'Translation service is not available. Please configure the CLAUDE_API_KEY environment variable.'
       });
     }
 

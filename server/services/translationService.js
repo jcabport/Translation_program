@@ -3,7 +3,12 @@ const { Chapter, NameMapping } = require('../models');
 
 class TranslationService {
   constructor(apiKey, nameManager) {
-    this.anthropic = new Anthropic({ apiKey });
+    if (!apiKey) {
+      console.warn('TranslationService initialized without API key. Translation features will be disabled.');
+      this.anthropic = null;
+    } else {
+      this.anthropic = new Anthropic({ apiKey });
+    }
     this.nameManager = nameManager;
     this.model = 'claude-3-7-sonnet-20250219'; // Using the latest model
   }
@@ -11,6 +16,10 @@ class TranslationService {
   // Process a single chapter
   async translateChapter(novelId, chapterId, sourceText, sourceLanguage = 'ko', targetLanguage = 'en') {
     try {
+      if (!this.anthropic) {
+        throw new Error('Translation service is not available. Please configure the CLAUDE_API_KEY environment variable.');
+      }
+
       // 1. Load context from previous chapters
       const context = await this.getTranslationContext(novelId, chapterId);
       

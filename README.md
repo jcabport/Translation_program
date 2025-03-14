@@ -132,3 +132,35 @@ novel-translation/
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Environment Setup
+
+1. Copy the `.env.example` file to create your own `.env` file:
+   ```bash
+   cp .env.example .env
+   ```
+
+2. Configure the following environment variables in your `.env` file:
+   - `MONGO_URI`: MongoDB connection string (default: mongodb://localhost:27017/novel-translation)
+   - `PORT`: Server port (default: 5001)
+   - `NODE_ENV`: Environment mode (development/production)
+   - `CLAUDE_API_KEY`: Your Claude API key (required for translation features)
+
+3. If you don't have a Claude API key:
+   - The application will still work for basic features (viewing novels, chapters)
+   - Translation features will be disabled
+   - Name detection will fall back to basic regex-based detection
+
+## Development
+
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+2. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+This will start both the backend server and frontend development server.

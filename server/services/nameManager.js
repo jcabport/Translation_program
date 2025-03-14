@@ -5,11 +5,13 @@ class NameManager {
   constructor(apiKey) {
     this.nameCache = new Map(); // In-memory cache of name mappings
     if (!apiKey) {
-      throw new Error('Claude API key is required for NameManager');
+      console.warn('NameManager initialized without API key. Name detection features will be disabled.');
+      this.anthropic = null;
+    } else {
+      this.anthropic = new Anthropic({
+        apiKey: apiKey,
+      });
     }
-    this.anthropic = new Anthropic({
-      apiKey: apiKey,
-    });
   }
 
   // Load name dictionary for a specific novel
@@ -34,6 +36,11 @@ class NameManager {
     try {
       // Get existing dictionary
       await this.loadDictionary(novelId);
+      
+      // If no API key, fallback to regex-based detection
+      if (!this.anthropic) {
+        return this.regexNameDetection(text, language);
+      }
       
       // Use Claude API to help identify potential names
       const prompt = `
