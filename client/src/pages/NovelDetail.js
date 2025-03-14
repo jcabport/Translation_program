@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
-import { novelApi, chapterApi } from '../services/api';
+import { novelApi, chapterApi, translationApi } from '../services/api';
 import './NovelDetail.css';
 
 const NovelDetail = () => {
@@ -21,6 +21,14 @@ const NovelDetail = () => {
     const fetchNovelAndChapters = async () => {
       try {
         setLoading(true);
+        setError(null);
+        
+        // Check for undefined or invalid id
+        if (!id || id === 'undefined') {
+          setError('Invalid novel ID');
+          setLoading(false);
+          return;
+        }
         
         // Special case for "new" route
         if (id === 'new') {
@@ -35,17 +43,22 @@ const NovelDetail = () => {
           });
           setChapters([]);
         } else {
-          const novelData = await novelApi.getNovel(id);
-          setNovel(novelData);
-          
-          const chaptersData = await chapterApi.getChapters(id);
-          setChapters(chaptersData);
+          try {
+            const novelData = await novelApi.getNovel(id);
+            setNovel(novelData);
+            
+            const chaptersData = await chapterApi.getChapters(id);
+            setChapters(chaptersData);
+          } catch (err) {
+            console.error('Error fetching novel details:', err);
+            setError(err.message || 'Failed to fetch novel details. Please try again later.');
+            setNovel(null);
+            setChapters([]);
+          }
         }
-        
-        setError(null);
       } catch (err) {
-        setError('Failed to fetch novel details. Please try again later.');
-        console.error('Error fetching novel details:', err);
+        console.error('Error in fetchNovelAndChapters:', err);
+        setError('An unexpected error occurred. Please try again later.');
       } finally {
         setLoading(false);
       }
@@ -72,8 +85,8 @@ const NovelDetail = () => {
         await chapterApi.deleteChapter(chapterId);
         setChapters(chapters.filter(chapter => chapter._id !== chapterId));
       } catch (err) {
-        setError('Failed to delete chapter. Please try again later.');
         console.error('Error deleting chapter:', err);
+        setError(err.message || 'Failed to delete chapter. Please try again later.');
       }
     }
   };
@@ -104,8 +117,24 @@ const NovelDetail = () => {
       });
       setShowAddChapter(false);
     } catch (err) {
-      setError('Failed to add chapter. Please try again later.');
       console.error('Error adding chapter:', err);
+      setError(err.message || 'Failed to add chapter. Please try again later.');
+    }
+  };
+
+  const handleTranslateChapter = async (chapterId) => {
+    try {
+      setError(null);
+      const result = await translationApi.translateChapter(id, chapterId);
+      // Update the chapter status in the local state
+      setChapters(chapters.map(chapter => 
+        chapter._id === chapterId 
+          ? { ...chapter, status: 'translated', translation: result.chapter.translation }
+          : chapter
+      ));
+    } catch (err) {
+      console.error('Error translating chapter:', err);
+      setError(err.message || 'Translation failed. Please check your API settings and try again.');
     }
   };
 
@@ -114,7 +143,14 @@ const NovelDetail = () => {
   }
 
   if (error) {
-    return <div className="alert alert-error">{error}</div>;
+    return (
+      <div className="alert alert-error">
+        <p>{error}</p>
+        <button onClick={() => setError(null)} className="btn btn-primary">
+          Dismiss
+        </button>
+      </div>
+    );
   }
 
   if (!novel) {

@@ -2,10 +2,13 @@ const { NameMapping } = require('../models');
 const { Anthropic } = require('@anthropic-ai/sdk');
 
 class NameManager {
-  constructor() {
+  constructor(apiKey) {
     this.nameCache = new Map(); // In-memory cache of name mappings
+    if (!apiKey) {
+      throw new Error('Claude API key is required for NameManager');
+    }
     this.anthropic = new Anthropic({
-      apiKey: process.env.CLAUDE_API_KEY,
+      apiKey: apiKey,
     });
   }
 

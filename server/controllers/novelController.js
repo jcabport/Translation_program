@@ -5,11 +5,20 @@ const { Novel, Chapter } = require('../models');
 // @access  Public
 const getNovels = async (req, res) => {
   try {
+    console.log('Attempting to fetch novels...');
     const novels = await Novel.find({}).sort({ createdAt: -1 });
+    console.log(`Successfully fetched ${novels.length} novels`);
     res.json(novels);
   } catch (error) {
-    res.status(500);
-    throw new Error('Server Error: ' + error.message);
+    console.error('Detailed error in getNovels:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name,
+      code: error.code
+    });
+    return res.status(500).json({
+      message: `Failed to fetch novels: ${error.message}`
+    });
   }
 };
 
@@ -20,8 +29,9 @@ const getNovelById = async (req, res) => {
   try {
     // Handle invalid IDs
     if (!req.params.id || req.params.id === 'undefined') {
-      res.status(400);
-      throw new Error('Invalid novel ID');
+      return res.status(400).json({
+        message: 'Invalid novel ID'
+      });
     }
     
     const novel = await Novel.findById(req.params.id).populate('chapters');
@@ -29,12 +39,15 @@ const getNovelById = async (req, res) => {
     if (novel) {
       res.json(novel);
     } else {
-      res.status(404);
-      throw new Error('Novel not found');
+      return res.status(404).json({
+        message: `Novel with ID ${req.params.id} not found`
+      });
     }
   } catch (error) {
-    res.status(res.statusCode === 200 ? 500 : res.statusCode);
-    throw new Error(error.message);
+    console.error('Error fetching novel:', error);
+    return res.status(500).json({
+      message: `Failed to fetch novel: ${error.message}`
+    });
   }
 };
 
@@ -44,6 +57,13 @@ const getNovelById = async (req, res) => {
 const createNovel = async (req, res) => {
   try {
     const { title, author, sourceLanguage, targetLanguage, description, coverImage } = req.body;
+    
+    // Validate required fields
+    if (!title || !author || !sourceLanguage || !targetLanguage) {
+      return res.status(400).json({
+        message: 'Missing required fields: title, author, sourceLanguage, and targetLanguage are required'
+      });
+    }
     
     const novel = await Novel.create({
       title,
@@ -56,8 +76,10 @@ const createNovel = async (req, res) => {
     
     res.status(201).json(novel);
   } catch (error) {
-    res.status(400);
-    throw new Error('Invalid novel data: ' + error.message);
+    console.error('Error creating novel:', error);
+    return res.status(400).json({
+      message: `Failed to create novel: ${error.message}`
+    });
   }
 };
 
@@ -81,12 +103,14 @@ const updateNovel = async (req, res) => {
       const updatedNovel = await novel.save();
       res.json(updatedNovel);
     } else {
-      res.status(404);
-      throw new Error('Novel not found');
+      return res.status(404).json({
+        message: 'Novel not found'
+      });
     }
   } catch (error) {
-    res.status(res.statusCode === 200 ? 500 : res.statusCode);
-    throw new Error(error.message);
+    return res.status(500).json({
+      message: error.message
+    });
   }
 };
 
@@ -105,12 +129,14 @@ const deleteNovel = async (req, res) => {
       await novel.remove();
       res.json({ message: 'Novel removed' });
     } else {
-      res.status(404);
-      throw new Error('Novel not found');
+      return res.status(404).json({
+        message: 'Novel not found'
+      });
     }
   } catch (error) {
-    res.status(res.statusCode === 200 ? 500 : res.statusCode);
-    throw new Error(error.message);
+    return res.status(500).json({
+      message: error.message
+    });
   }
 };
 

@@ -3,7 +3,12 @@ const TranslationService = require('../services/translationService');
 const NameManager = require('../services/nameManager');
 
 // Initialize services
-const nameManager = new NameManager();
+if (!process.env.CLAUDE_API_KEY) {
+  console.error('CLAUDE_API_KEY is not set in environment variables');
+  process.exit(1);
+}
+
+const nameManager = new NameManager(process.env.CLAUDE_API_KEY);
 const translationService = new TranslationService(process.env.CLAUDE_API_KEY, nameManager);
 
 // @desc    Translate a chapter
@@ -13,88 +18,75 @@ const translateChapter = async (req, res) => {
   try {
     const { novelId, chapterId } = req.params;
     
+    // Validate parameters
+    if (!novelId || !chapterId) {
+      return res.status(400).json({
+        message: 'Novel ID and Chapter ID are required'
+      });
+    }
+
+    // Check if Claude API key is configured
+    if (!process.env.CLAUDE_API_KEY) {
+      console.error('CLAUDE_API_KEY is not set in environment variables');
+      return res.status(500).json({
+        message: 'Translation service is not properly configured. Please check your API settings.'
+      });
+    }
+
     // Get the chapter
     const chapter = await Chapter.findById(chapterId);
     if (!chapter) {
-      res.status(404);
-      throw new Error('Chapter not found');
+      return res.status(404).json({
+        message: 'Chapter not found'
+      });
     }
-    
-    // Get the novel
-    const novel = await Novel.findById(novelId);
-    if (!novel) {
-      res.status(404);
-      throw new Error('Novel not found');
-    }
-    
-    // Check if chapter belongs to novel
+
+    // Check if chapter belongs to the specified novel
     if (chapter.novel.toString() !== novelId) {
-      res.status(400);
-      throw new Error('Chapter does not belong to this novel');
+      return res.status(400).json({
+        message: 'Chapter does not belong to the specified novel'
+      });
     }
-    
+
     // Translate the chapter
     const result = await translationService.translateChapter(
       novelId,
       chapterId,
-      chapter.sourceText,
-      novel.sourceLanguage,
-      novel.targetLanguage
+      chapter.sourceText
     );
-    
+
     // Update chapter with translation
     chapter.translation = {
       raw: result.rawTranslation,
       processed: result.processedTranslation,
-      createdAt: new Date(),
+      createdAt: new Date()
     };
-    
-    // Update chapter status
-    chapter.status = result.newNames.length > 0 ? 'needs_review' : 'translated';
-    chapter.pendingNames = result.newNames.length > 0;
-    
+    chapter.status = 'translated';
+
+    // Generate and save chapter summary
+    const summary = await translationService.generateChapterSummary(
+      novelId,
+      chapterId,
+      result.processedTranslation
+    );
+    chapter.summary = summary;
+
     await chapter.save();
-    
-    // Store detected names
-    if (result.newNames.length > 0) {
-      await Promise.all(result.newNames.map(async (name) => {
-        await DetectedName.create({
-          novel: novelId,
-          chapter: chapterId,
-          originalText: name.originalText,
-          suggestedTranslation: name.suggestedTranslation,
-          type: name.type || 'unknown',
-          context: name.context,
-          status: 'pending',
-        });
-      }));
-    }
-    
-    // Generate chapter summary for future context
-    if (!chapter.summary) {
-      const summary = await translationService.generateChapterSummary(
-        novelId,
-        chapterId,
-        result.processedTranslation
-      );
-      
-      if (summary) {
-        chapter.summary = summary;
-        await chapter.save();
-      }
-    }
-    
+
     res.json({
-      translation: result.processedTranslation,
-      newNames: result.newNames,
-      needsReview: result.newNames.length > 0,
+      message: 'Chapter translated successfully',
+      chapter
     });
+
   } catch (error) {
-    res.status(res.statusCode === 200 ? 500 : res.statusCode);
-    throw new Error('Translation failed: ' + error.message);
+    console.error('Translation error:', error);
+    res.status(500).json({
+      message: error.message || 'Translation failed. Please try again later.',
+      ...(process.env.NODE_ENV === 'development' && { stack: error.stack })
+    });
   }
 };
 
 module.exports = {
-  translateChapter,
+  translateChapter
 };
